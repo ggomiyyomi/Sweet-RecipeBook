@@ -43,6 +43,10 @@ frontend/.env.*
 .env
 
 # =========================
-# Spring Config
+# Config
 # =========================
+# Spring Config
 backend/recipebook/src/main/resources/application*.yaml
+
+# Claude AI config
+.CLAUDE.md
