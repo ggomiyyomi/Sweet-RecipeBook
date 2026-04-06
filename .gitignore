@@ -40,6 +40,8 @@ backend/recipebook/.gradle/
 # Frontend env
 frontend/.env
 frontend/.env.*
+# Backend env
+backend/**/.env
 .env
 
 # =========================

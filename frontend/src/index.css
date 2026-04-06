@@ -1,7 +1,145 @@
 @import "tailwindcss";
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@theme {
+  --color-primary-50: #FFF5EC;
+  --color-primary-100: #FFE8D5;
+  --color-primary-200: #FFC99A;
+  --color-primary-300: #F5A878;
+  --color-primary-400: #E8834A;
+  --color-primary-500: #D4703A;
+  --color-primary-600: #B85A2A;
+  --color-primary-700: #9B4520;
+
+  --color-brown-50: #FAF5F0;
+  --color-brown-100: #F0E6DA;
+  --color-brown-400: #9B7260;
+  --color-brown-600: #6B4E3D;
+  --color-brown-800: #2C1810;
+  --color-brown-900: #1A0F08;
 }
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #2C1810;
+    background: linear-gradient(135deg, #FFF5EC 0%, #FFE8D5 45%, #FFCFA8 100%);
+    background-attachment: fixed;
+  }
+}
+
+/* ─────────────────────────────────────────
+   글라스모피즘 유틸리티
+───────────────────────────────────────── */
+
+.glass {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 8px 32px rgba(180, 100, 60, 0.08),
+    0 2px 8px rgba(180, 100, 60, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  box-shadow:
+    0 12px 40px rgba(180, 100, 60, 0.12),
+    0 4px 12px rgba(180, 100, 60, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.glass-subtle {
+  background: rgba(255, 255, 255, 0.32);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.50);
+  box-shadow: 0 4px 16px rgba(180, 100, 60, 0.05);
+}
+
+.glass-dark {
+  background: rgba(44, 24, 16, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* ─────────────────────────────────────────
+   배경 장식 오브 (글라스모피즘 강화)
+───────────────────────────────────────── */
+
+.bg-orb {
+  position: fixed;
+  border-radius: 9999px;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ─────────────────────────────────────────
+   스크롤바
+───────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 112, 58, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 112, 58, 0.55);
+}
+
+/* 가로 스크롤 영역 스크롤바 숨김 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* ─────────────────────────────────────────
+   애니메이션
+───────────────────────────────────────── */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+.animate-fade-in-up { animation: fadeInUp 0.4s ease forwards; }
+.animate-fade-in    { animation: fadeIn 0.3s ease forwards; }
+.animate-float      { animation: float 4s ease-in-out infinite; }
+
+/* 딜레이 유틸 */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
