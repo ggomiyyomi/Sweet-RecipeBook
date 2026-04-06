@@ -1,66 +1,27 @@
 import { Link } from 'react-router-dom';
 import { Header } from '../components/layout/Header';
-import { Button } from '../components/ui/Button';
-import type { Recipe } from '../types';
+import { useAuthStore } from '../store/useAuthStore';
+import { useRecipeBookStore } from '../store/useRecipeBookStore';
+import type { RecipeBook } from '../types';
 
-const mockRecipes: Recipe[] = [
-  {
-    recipeId: 1, userId: 1, title: '엄마의 된장찌개', cookingTime: 30,
-    thumbnailUrl: '', review: '언제 먹어도 그리운 맛', createdAt: '', updatedAt: '',
-    categories: [{ categoryId: 1, userId: 1, name: '엄마 레시피', sortOrder: 0 }],
-  },
-  {
-    recipeId: 2, userId: 1, title: '바나나 파운드케이크', cookingTime: 60,
-    thumbnailUrl: '', review: '촉촉하고 달콤해서 아무도 거부 못하는 맛이에요. 집들이 선물로도 최고!', createdAt: '', updatedAt: '',
-    categories: [{ categoryId: 2, userId: 1, name: '베이킹', sortOrder: 1 }],
-  },
-  {
-    recipeId: 3, userId: 1, title: '간장계란볶음밥', cookingTime: 15,
-    thumbnailUrl: '', review: '자취생의 소울푸드', createdAt: '', updatedAt: '',
-    categories: [{ categoryId: 3, userId: 1, name: '간단요리', sortOrder: 2 }],
-  },
-  {
-    recipeId: 4, userId: 1, title: '크림 뇨끼 파스타', cookingTime: 35,
-    thumbnailUrl: '', review: '크리미하고 진한 맛, 식당보다 맛있다는 말 들어봤어요', createdAt: '', updatedAt: '',
-    categories: [{ categoryId: 4, userId: 1, name: '양식', sortOrder: 3 }],
-  },
-  {
-    recipeId: 5, userId: 1, title: '매콤 제육볶음', cookingTime: 20,
-    thumbnailUrl: '', review: '매콤달콤, 밥도둑이 따로 없어요', createdAt: '', updatedAt: '',
-    categories: [{ categoryId: 1, userId: 1, name: '한식', sortOrder: 4 }],
-  },
-];
+const statusLabel: Record<RecipeBook['status'], string> = {
+  DRAFT:     '작성 중',
+  GENERATED: '생성 완료',
+  ORDERED:   '주문 완료',
+};
 
-const steps = [
-  {
-    num: '01', label: 'Design',
-    title: '레시피 선택',
-    desc: '소중한 레시피 하나하나를 정성스럽게 골라 나만의 컬렉션을 완성하세요.',
-    icon: '📝',
-  },
-  {
-    num: '02', label: 'Materials',
-    title: '순서 구성',
-    desc: '레시피의 흐름을 잡고 최적의 순서로 구성해 책의 완성도를 높이세요.',
-    icon: '🔀',
-  },
-  {
-    num: '03', label: 'Craftmanship',
-    title: '책 생성',
-    desc: '고품질 인쇄로 나만의 레시피북을 실물 책으로 만들어냅니다.',
-    icon: '📖',
-  },
-  {
-    num: '04', label: 'Finish',
-    title: '주문 배송',
-    desc: '완성된 레시피북을 집 앞으로 배송해 드립니다.',
-    icon: '📦',
-  },
-];
+const statusColor: Record<RecipeBook['status'], string> = {
+  DRAFT:     'bg-primary-100/80 text-primary-700',
+  GENERATED: 'bg-emerald-100/80 text-emerald-700',
+  ORDERED:   'bg-sky-100/80 text-sky-700',
+};
 
-const foodEmoji = ['🍲', '🎂', '🍳', '🥘', '🍜', '🥗', '🍱', '🫕'];
+
 
 export function DashboardPage() {
+  const { user } = useAuthStore();
+  const { books } = useRecipeBookStore();
+  const hasBooks = user && books.length > 0;
   return (
     <div>
       <Header />
@@ -111,21 +72,13 @@ export function DashboardPage() {
 
         {/* 텍스트 – 왼쪽 하단 */}
         <div className="relative z-10 max-w-6xl mx-auto px-8 pb-28 w-full">
-          <p className="text-xs text-brown-500 mb-4 tracking-[0.25em] uppercase">Sweet Recipe Book</p>
+          <p className="text-xs text-brown-500 mb-4 tracking-[0.25em] uppercase">Create Your Recipe Book</p>
           <h1 className="text-7xl font-bold text-brown-800 mb-6 leading-tight">
-            맛을 재현하다
+            재현하다
           </h1>
           <p className="text-xl text-brown-600 mb-10 leading-relaxed">
             소중한 나만의 레시피를<br />아름다운 책으로 담아보세요.
           </p>
-          <div className="flex gap-4 flex-wrap">
-            <Link to="/recipes/new">
-              <Button size="lg">레시피 추가하기</Button>
-            </Link>
-            <Link to="/books">
-              <Button size="lg" variant="secondary">레시피북 만들기</Button>
-            </Link>
-          </div>
         </div>
 
         {/* 스크롤 인디케이터 */}
@@ -135,62 +88,7 @@ export function DashboardPage() {
         </div>
       </section>
 
-      {/* ── Section 2: Features ───────────────────────────── */}
-      <section
-        className="relative min-h-screen py-32 px-8 overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #3d2318 0%, #1A0F08 60%, #2c1810 100%)' }}
-      >
-        {/* 배경 장식 */}
-        <div
-          className="absolute rounded-full blur-[120px] pointer-events-none opacity-15"
-          style={{ top: 80, left: 80, width: 400, height: 400, background: '#D4703A' }}
-        />
-        <div
-          className="absolute rounded-full blur-[100px] pointer-events-none opacity-10"
-          style={{ bottom: 80, right: 80, width: 300, height: 300, background: '#E8834A' }}
-        />
 
-        <div className="max-w-6xl mx-auto">
-          {/* 섹션 헤더 */}
-          <div className="text-center mb-20">
-            <p className="text-primary-400 text-xs tracking-[0.25em] uppercase mb-4">How it works</p>
-            <h2 className="text-5xl font-bold text-white mb-6 leading-tight">
-              레시피북 만들기,<br />이렇게 간단해요
-            </h2>
-            <p className="text-brown-300 text-lg leading-relaxed">
-              레시피 선택부터 집 앞 배송까지,<br />모든 과정을 함께 디자인했습니다.
-            </p>
-          </div>
-
-          {/* 4단계 카드 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {steps.map((step) => (
-              <div
-                key={step.num}
-                className="glass-dark rounded-2xl p-6 group hover:bg-white/10 transition-all duration-300 cursor-pointer"
-              >
-                <div className="flex items-start justify-between mb-6">
-                  <span className="text-xs text-brown-400 tracking-widest">
-                    STEP {step.num} – {step.label}
-                  </span>
-                  <span className="text-brown-500 text-sm group-hover:text-primary-400 transition-colors">
-                    ↗
-                  </span>
-                </div>
-
-                <div className="h-24 rounded-xl bg-white/5 flex items-center justify-center mb-6">
-                  <span className="text-5xl">{step.icon}</span>
-                </div>
-
-                <h3 className="text-white font-semibold text-lg mb-3 leading-snug">
-                  {step.title}
-                </h3>
-                <p className="text-brown-300 text-sm leading-relaxed">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── Section 3: 레시피 갤러리 ──────────────────────── */}
       <section className="relative py-32 overflow-hidden">
@@ -205,49 +103,35 @@ export function DashboardPage() {
           {/* 섹션 헤더 */}
           <div className="max-w-6xl mx-auto px-8 mb-14 text-center">
             <h2 className="text-4xl font-bold text-brown-800 mb-5">
-              나의 레시피와 함께한 순간
+              나만의 레시피의 시작,<br />재현하다
             </h2>
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 glass px-5 py-2.5 rounded-full text-sm text-brown-600 hover:bg-white/65 transition-all"
-            >
-              자세히 보기 →
-            </Link>
           </div>
 
-          {/* 가로 스크롤 */}
-          <div
-            className="flex gap-5 overflow-x-auto pb-6 px-8 snap-x snap-mandatory"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' } as React.CSSProperties}
-          >
-            {/* 왼쪽 spacer (대형 화면 중앙 정렬) */}
-            <div className="shrink-0 w-[max(0px,calc((100vw-1152px)/2))]" />
+          {/* 레시피북 있을 때: 가로 스크롤 */}
+          {hasBooks ? (
+            <div
+              className="flex gap-5 overflow-x-auto pb-6 px-8 snap-x snap-mandatory"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' } as React.CSSProperties}
+            >
+              <div className="shrink-0 w-[max(0px,calc((100vw-1152px)/2))]" />
 
-            {mockRecipes.map((recipe, i) => {
-              const isFeatured = i === 1;
-              return (
+              {books.map((book, i) => (
                 <Link
-                  key={recipe.recipeId}
-                  to={`/recipes/${recipe.recipeId}`}
+                  key={book.recipeBookId}
+                  to={`/books/${book.recipeBookId}`}
                   className={[
                     'shrink-0 snap-center w-72 rounded-2xl overflow-hidden transition-all duration-300 glass',
-                    isFeatured
+                    i === 1
                       ? 'shadow-2xl scale-105 ring-1 ring-white/40'
                       : 'opacity-80 hover:opacity-100 hover:shadow-xl',
                   ].join(' ')}
                 >
-                  {/* 썸네일 */}
+                  {/* 커버 */}
                   <div className="relative h-48 bg-linear-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-                    <span className="text-7xl select-none">
-                      {foodEmoji[recipe.recipeId % foodEmoji.length]}
+                    <span className="text-7xl select-none">📚</span>
+                    <span className={`absolute top-3 left-3 text-xs px-2.5 py-1 rounded-full font-medium ${statusColor[book.status]}`}>
+                      {statusLabel[book.status]}
                     </span>
-
-                    {isFeatured ? (
-                      <span className="absolute top-3 left-3 bg-primary-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">
-                        Best Recipe
-                      </span>
-                    ) : null}
-
                     <span className="absolute top-3 right-3 glass w-8 h-8 rounded-full flex items-center justify-center text-xs text-brown-600">
                       ↗
                     </span>
@@ -256,45 +140,92 @@ export function DashboardPage() {
                   {/* 내용 */}
                   <div className="p-5">
                     <h3 className="font-semibold text-brown-800 text-lg mb-2 leading-snug">
-                      {recipe.title}
+                      {book.title}
                     </h3>
-                    {recipe.review && (
-                      <p className="text-sm text-brown-400 line-clamp-2 mb-4 leading-relaxed">
-                        {recipe.review}
-                      </p>
-                    )}
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      {recipe.categories?.map((cat) => (
-                        <span
-                          key={cat.categoryId}
-                          className="text-xs text-brown-500 bg-brown-100/80 px-2.5 py-0.5 rounded-full"
-                        >
-                          {cat.name}
-                        </span>
-                      ))}
-                    </div>
-                    {recipe.cookingTime && (
-                      <p className="text-xs text-brown-400">⏱ {recipe.cookingTime}분</p>
-                    )}
+                    <p className="text-xs text-brown-400">
+                      수정일 {new Date(book.updatedAt).toLocaleDateString('ko-KR')}
+                    </p>
                   </div>
                 </Link>
-              );
-            })}
+              ))}
 
-            {/* 새 레시피 추가 카드 */}
-            <Link
-              to="/recipes/new"
-              className="shrink-0 snap-center w-72 rounded-2xl glass-subtle flex flex-col items-center justify-center border-2 border-dashed border-primary-200/60 min-h-85 hover:bg-white/40 transition-all"
-            >
-              <div className="w-14 h-14 rounded-full glass flex items-center justify-center mb-4">
-                <span className="text-2xl text-primary-500">+</span>
-              </div>
-              <p className="text-sm text-brown-400">새 레시피 추가</p>
-            </Link>
+              <div className="shrink-0 w-[max(0px,calc((100vw-1152px)/2))]" />
+            </div>
+          ) : (
+            /* 레시피북 없거나 비로그인: CTA 카드 하나 */
+            <div className="flex justify-center px-8">
+              <Link
+                to={user ? '/books' : '/login'}
+                className="w-72 rounded-2xl glass-subtle flex flex-col items-center justify-center border-2 border-dashed border-primary-200/60 min-h-85 hover:bg-white/40 transition-all"
+              >
+                <div className="w-16 h-16 rounded-full glass flex items-center justify-center mb-5">
+                  <span className="text-3xl">📖</span>
+                </div>
+                <p className="text-base font-semibold text-brown-600 mb-1">
+                  {user ? '첫 레시피북 만들기' : '로그인하고 시작하기'}
+                </p>
+                <p className="text-xs text-brown-400">
+                  {user ? '나만의 레시피를 책으로 담아보세요' : '재현하다와 함께해요'}
+                </p>
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
 
-            {/* 오른쪽 spacer */}
-            <div className="shrink-0 w-[max(0px,calc((100vw-1152px)/2))]" />
+      {/* ── Section 4: 책 템플릿 ───────────────────────────── */}
+      <section
+        className="relative py-32 px-8 overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #3d2318 0%, #1A0F08 60%, #2c1810 100%)' }}
+      >
+        {/* 배경 장식 */}
+        <div
+          className="absolute rounded-full blur-[120px] pointer-events-none opacity-10"
+          style={{ bottom: 80, right: 80, width: 500, height: 500, background: '#D4703A' }}
+        />
+
+        <div className="max-w-6xl mx-auto">
+          {/* 헤더 */}
+          <div className="text-center mb-16">
+            <p className="text-primary-400 text-xs tracking-[0.25em] uppercase mb-4">나만의 책을 꾸며요</p>
+            <h2 className="text-5xl font-bold text-white mb-6 leading-tight">
+              BOOK TAMPLATES
+            </h2>
           </div>
+
+          {/* 템플릿 카드 그리드 (API 연결 전 플레이스홀더) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { name: '클래식 화이트', desc: '깔끔하고 단정한 기본 디자인', emoji: '📄', tag: 'Classic' },
+              { name: '웜 베이지',    desc: '따뜻한 감성의 빈티지 스타일', emoji: '🍂', tag: 'Warm' },
+              { name: '다크 모던',   desc: '세련된 다크 톤 프리미엄 디자인', emoji: '🖤', tag: 'Modern' },
+              { name: '플로럴',      desc: '꽃과 자연을 담은 감성 디자인', emoji: '🌸', tag: 'Floral' },
+              { name: '미니멀',      desc: '여백의 미를 살린 미니멀 스타일', emoji: '✦', tag: 'Minimal' },
+              { name: '패밀리',      desc: '가족과의 추억을 담은 따뜻한 디자인', emoji: '🏠', tag: 'Family' },
+            ].map((template) => (
+              <div
+                key={template.name}
+                className="glass-dark rounded-2xl overflow-hidden group cursor-pointer hover:bg-white/10 transition-all duration-300 hover:-translate-y-1"
+              >
+                {/* 미리보기 */}
+                <div className="h-44 bg-white/5 flex flex-col items-center justify-center gap-3 relative">
+                  <span className="text-6xl">{template.emoji}</span>
+                  <span className="text-xs text-primary-400 tracking-widest uppercase">{template.tag}</span>
+                  <span className="absolute top-3 right-3 text-xs text-brown-500 group-hover:text-primary-400 transition-colors">↗</span>
+                </div>
+                {/* 정보 */}
+                <div className="p-5">
+                  <h3 className="text-white font-semibold mb-1">{template.name}</h3>
+                  <p className="text-brown-400 text-sm">{template.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* API 연결 안내 (개발용) */}
+          <p className="text-center text-brown-600 text-xs mt-10">
+            * 템플릿 데이터는 api.sweetbook.com 연동 후 교체됩니다
+          </p>
         </div>
       </section>
     </div>

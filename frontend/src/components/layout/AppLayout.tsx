@@ -18,7 +18,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       <Header />
 
-      <main className="pt-20 pb-12 px-4 max-w-6xl mx-auto">
+      <main className="pt-24 pb-12 px-4 max-w-6xl mx-auto">
         {children}
       </main>
     </div>
