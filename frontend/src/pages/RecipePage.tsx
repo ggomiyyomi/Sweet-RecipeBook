@@ -60,13 +60,11 @@ export function RecipePage() {
         steps,
       };
       if (isEdit) {
-        const updated = await recipesApi.update(Number(id), payload);
-        updateRecipe(updated.recipeId, updated);
+        await recipesApi.update(Number(id), payload);
       } else {
-        const created = await recipesApi.create(payload);
-        addRecipe(created);
+        await recipesApi.create(payload);
       }
-      navigate(-1);
+      navigate('/recipes');
     } finally {
       setLoading(false);
     }

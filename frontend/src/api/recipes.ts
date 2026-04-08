@@ -9,10 +9,10 @@ export const recipesApi = {
     client.get<RecipeDetail>(`/recipes/${recipeId}`).then((r) => r.data),
 
   create: (data: RecipeFormData) =>
-    client.post<RecipeDetail>('/recipes', data).then((r) => r.data),
+    client.post('/recipes', data), // 201 no body
 
   update: (recipeId: number, data: Partial<RecipeFormData>) =>
-    client.put<RecipeDetail>(`/recipes/${recipeId}`, data).then((r) => r.data),
+    client.put(`/recipes/${recipeId}`, data), // 204 no body
 
   remove: (recipeId: number) =>
     client.delete(`/recipes/${recipeId}`),

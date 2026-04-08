@@ -6,16 +6,46 @@ import { Input } from '../components/ui/Input';
 import { authApi } from '../api/auth';
 import { useAuthStore } from '../store/useAuthStore';
 
+function validateEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function validatePassword(password: string) {
+  return {
+    hasUpper:   /[A-Z]/.test(password),
+    hasNumber:  /[0-9]/.test(password),
+    hasSpecial: /[!@#$%^&*(),.?":{}|<>\-_=+[\]\\;'/`~]/.test(password),
+    hasLength:  password.length >= 8,
+  };
+}
+
 export function LoginPage() {
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [form, setForm] = useState({ email: '', password: '', name: '' });
+  const [touched, setTouched] = useState({ email: false, password: false });
+
+  const emailValid = validateEmail(form.email);
+  const pwChecks = validatePassword(form.password);
+  const pwValid = Object.values(pwChecks).every(Boolean);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    setTouched((prev) => ({ ...prev, [e.target.name]: true }));
+  };
+
+  const canSubmit = emailValid && (isRegister ? pwValid : form.password.length > 0) && (!isRegister || form.name.trim().length > 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canSubmit) return;
     setLoading(true);
     setError(null);
     try {
@@ -23,7 +53,8 @@ export function LoginPage() {
         ? await authApi.signup({ email: form.email, password: form.password, name: form.name })
         : await authApi.login({ email: form.email, password: form.password });
       setAuth(res.user, res.token);
-      navigate('/');
+      setSuccess(isRegister ? '회원가입이 완료되었습니다!' : '로그인 완료!');
+      setTimeout(() => navigate('/'), 900);
     } catch (err: any) {
       setError(err.response?.data?.message ?? '요청에 실패했어요. 다시 시도해주세요.');
     } finally {
@@ -31,8 +62,11 @@ export function LoginPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const switchMode = (register: boolean) => {
+    setIsRegister(register);
+    setError(null);
+    setSuccess(null);
+    setTouched({ email: false, password: false });
   };
 
   return (
@@ -58,7 +92,7 @@ export function LoginPage() {
             {(['로그인', '회원가입'] as const).map((label, i) => (
               <button
                 key={label}
-                onClick={() => setIsRegister(i === 1)}
+                onClick={() => switchMode(i === 1)}
                 className={[
                   'flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200',
                   (i === 1) === isRegister
@@ -71,8 +105,18 @@ export function LoginPage() {
             ))}
           </div>
 
+          {/* 성공 메시지 */}
+          {success && (
+            <div className="mb-4 px-4 py-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-sm text-emerald-700 text-center font-medium">
+              ✓ {success}
+            </div>
+          )}
+
+          {/* 에러 메시지 */}
           {error && (
-            <p className="text-sm text-red-500 text-center -mb-1">{error}</p>
+            <div className="mb-4 px-4 py-3 rounded-xl bg-red-50/80 border border-red-200 text-sm text-red-600 text-center">
+              {error}
+            </div>
           )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -86,30 +130,61 @@ export function LoginPage() {
                 required
               />
             )}
-            <Input
-              label="이메일"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="hello@example.com"
-              required
-            />
-            <Input
-              label="비밀번호"
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-            />
+
+            {/* 이메일 */}
+            <div>
+              <Input
+                label="이메일"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="hello@example.com"
+                required
+              />
+              {touched.email && form.email && !emailValid && (
+                <p className="text-xs text-red-500 mt-1 ml-1">올바른 이메일 형식을 입력해주세요 (@ 포함)</p>
+              )}
+            </div>
+
+            {/* 비밀번호 */}
+            <div>
+              <Input
+                label="비밀번호"
+                name="password"
+                type="password"
+                value={form.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="••••••••"
+                required
+              />
+              {isRegister && form.password && (
+                <div className="mt-2 flex flex-col gap-1">
+                  {[
+                    { check: pwChecks.hasLength,  label: '8자 이상' },
+                    { check: pwChecks.hasUpper,   label: '대문자 포함' },
+                    { check: pwChecks.hasNumber,  label: '숫자 포함' },
+                    { check: pwChecks.hasSpecial, label: '특수문자 포함' },
+                  ].map(({ check, label }) => (
+                    <span key={label} className={`text-xs flex items-center gap-1.5 ${check ? 'text-emerald-600' : 'text-brown-400'}`}>
+                      <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[10px] font-bold ${check ? 'bg-emerald-100 text-emerald-600' : 'bg-brown-100 text-brown-400'}`}>
+                        {check ? '✓' : '·'}
+                      </span>
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <Button
               type="submit"
               fullWidth
               size="lg"
               loading={loading}
+              disabled={!canSubmit || !!success}
               className="mt-2"
             >
               {isRegister ? '가입하기' : '로그인'}
@@ -121,14 +196,14 @@ export function LoginPage() {
           {isRegister ? (
             <>
               이미 계정이 있으신가요?{' '}
-              <button onClick={() => setIsRegister(false)} className="text-primary-500 font-medium underline-offset-2 hover:underline">
+              <button onClick={() => switchMode(false)} className="text-primary-500 font-medium underline-offset-2 hover:underline">
                 로그인
               </button>
             </>
           ) : (
             <>
               아직 계정이 없으신가요?{' '}
-              <button onClick={() => setIsRegister(true)} className="text-primary-500 font-medium underline-offset-2 hover:underline">
+              <button onClick={() => switchMode(true)} className="text-primary-500 font-medium underline-offset-2 hover:underline">
                 회원가입
               </button>
             </>
