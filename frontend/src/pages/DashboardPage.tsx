@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '../components/layout/Header';
 import { useAuthStore } from '../store/useAuthStore';
 import { useRecipeBookStore } from '../store/useRecipeBookStore';
+import { booksApi } from '../api/books';
 import type { RecipeBook } from '../types';
 
 const statusLabel: Record<RecipeBook['status'], string> = {
@@ -20,8 +22,14 @@ const statusColor: Record<RecipeBook['status'], string> = {
 
 export function DashboardPage() {
   const { user } = useAuthStore();
-  const { books } = useRecipeBookStore();
+  const { books, setBooks } = useRecipeBookStore();
   const hasBooks = user && books.length > 0;
+
+  useEffect(() => {
+    if (user) {
+      booksApi.getAll().then(setBooks).catch(() => {});
+    }
+  }, [user]);
   return (
     <div>
       <Header />

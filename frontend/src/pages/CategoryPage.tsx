@@ -1,37 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { categoriesApi } from '../api/categories';
+import { useCategoryStore } from '../store/useCategoryStore';
 import type { Category } from '../types';
 
-const mockCategories: Category[] = [
-  { categoryId: 1, userId: 1, name: '엄마 레시피', sortOrder: 0 },
-  { categoryId: 2, userId: 1, name: '베이킹',      sortOrder: 1 },
-  { categoryId: 3, userId: 1, name: '간단요리',    sortOrder: 2 },
-  { categoryId: 4, userId: 1, name: '유튜버',      sortOrder: 3 },
-];
-
 export function CategoryPage() {
-  const [categories, setCategories] = useState<Category[]>(mockCategories);
+  const { categories, setCategories, addCategory, updateCategory, removeCategory, setLoading } = useCategoryStore();
   const [newName, setNewName] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
 
-  const handleAdd = () => {
+  useEffect(() => {
+    setLoading(true);
+    categoriesApi.getAll()
+      .then(setCategories)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleAdd = async () => {
     if (!newName.trim()) return;
-    const next: Category = {
-      categoryId: Date.now(),
-      userId: 1,
+    const created = await categoriesApi.create({
       name: newName.trim(),
       sortOrder: categories.length,
-    };
-    setCategories((prev) => [...prev, next]);
+    });
+    addCategory(created);
     setNewName('');
   };
 
-  const handleDelete = (id: number) => {
-    setCategories((prev) => prev.filter((c) => c.categoryId !== id));
+  const handleDelete = async (id: number) => {
+    await categoriesApi.remove(id);
+    removeCategory(id);
   };
 
   const handleEdit = (cat: Category) => {
@@ -39,11 +40,10 @@ export function CategoryPage() {
     setEditName(cat.name);
   };
 
-  const handleEditSave = (id: number) => {
+  const handleEditSave = async (id: number) => {
     if (!editName.trim()) return;
-    setCategories((prev) =>
-      prev.map((c) => (c.categoryId === id ? { ...c, name: editName.trim() } : c))
-    );
+    const updated = await categoriesApi.update(id, { name: editName.trim() });
+    updateCategory(id, updated);
     setEditingId(null);
   };
 

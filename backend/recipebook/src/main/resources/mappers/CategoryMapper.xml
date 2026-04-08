@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sweetrecipe.recipebook.mapper.CategoryMapper">
+
+    <insert id="insertCategory"
+            parameterType="com.sweetrecipe.recipebook.dto.request.CategoryCreateRequest"
+            useGeneratedKeys="true" keyProperty="categoryId">
+        INSERT INTO CATEGORY (user_id, name, sort_order)
+        VALUES (#{userId}, #{name}, IFNULL(#{sortOrder}, 0))
+    </insert>
+
+    <select id="findAllByUserId"
+            resultType="com.sweetrecipe.recipebook.dto.response.CategoryResponse">
+        SELECT category_id, user_id, name, sort_order
+        FROM CATEGORY
+        WHERE user_id = #{userId}
+        ORDER BY sort_order, category_id
+    </select>
+
+    <select id="findById"
+            resultType="com.sweetrecipe.recipebook.dto.response.CategoryResponse">
+        SELECT category_id, user_id, name, sort_order
+        FROM CATEGORY
+        WHERE category_id = #{categoryId}
+    </select>
+
+    <update id="updateCategory">
+        UPDATE CATEGORY
+        <set>
+            <if test="req.name != null">name = #{req.name},</if>
+            <if test="req.sortOrder != null">sort_order = #{req.sortOrder},</if>
+        </set>
+        WHERE category_id = #{categoryId}
+    </update>
+
+    <delete id="deleteCategory">
+        DELETE FROM CATEGORY WHERE category_id = #{categoryId}
+    </delete>
+
+</mapper>

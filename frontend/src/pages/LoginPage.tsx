@@ -3,21 +3,32 @@ import { useNavigate } from 'react-router-dom';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { authApi } from '../api/auth';
+import { useAuthStore } from '../store/useAuthStore';
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const setAuth = useAuthStore((s) => s.setAuth);
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({ email: '', password: '', name: '' });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // TODO: API 연결
-    setTimeout(() => {
-      setLoading(false);
+    setError(null);
+    try {
+      const res = isRegister
+        ? await authApi.signup({ email: form.email, password: form.password, name: form.name })
+        : await authApi.login({ email: form.email, password: form.password });
+      setAuth(res.user, res.token);
       navigate('/');
-    }, 800);
+    } catch (err: any) {
+      setError(err.response?.data?.message ?? '요청에 실패했어요. 다시 시도해주세요.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,6 +70,10 @@ export function LoginPage() {
               </button>
             ))}
           </div>
+
+          {error && (
+            <p className="text-sm text-red-500 text-center -mb-1">{error}</p>
+          )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {isRegister && (

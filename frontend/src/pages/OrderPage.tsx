@@ -1,17 +1,9 @@
+import { useEffect, useState } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Badge } from '../components/ui/Badge';
+import { ordersApi } from '../api/orders';
 import type { Order } from '../types';
-
-const mockOrders: Order[] = [
-  {
-    orderId: 1, userId: 1, recipeBookId: 2,
-    recipeBook: { recipeBookId: 2, title: '나의 베이킹 노트' },
-    externalOrderId: 'ORD-20260402-001',
-    status: 'SHIPPING',
-    createdAt: '2026-04-02T10:30:00', updatedAt: '2026-04-03T09:00:00',
-  },
-];
 
 const statusLabel: Record<Order['status'], string> = {
   PENDING:   '결제 대기',
@@ -32,6 +24,12 @@ const statusColor: Record<Order['status'], 'yellow' | 'blue' | 'green' | 'brown'
 const statusSteps: Order['status'][] = ['PENDING', 'CONFIRMED', 'SHIPPING', 'DELIVERED'];
 
 export function OrderPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  useEffect(() => {
+    ordersApi.getAll().then(setOrders);
+  }, []);
+
   return (
     <AppLayout>
       <div className="animate-fade-in-up">
@@ -40,7 +38,7 @@ export function OrderPage() {
           <h1 className="text-3xl font-bold text-brown-800">주문</h1>
         </div>
 
-        {mockOrders.length === 0 ? (
+        {orders.length === 0 ? (
           <GlassCard variant="subtle" padding="lg" className="text-center">
             <p className="text-4xl mb-3">📦</p>
             <p className="text-sm text-brown-400">아직 주문 내역이 없어요</p>
@@ -48,7 +46,7 @@ export function OrderPage() {
           </GlassCard>
         ) : (
           <div className="flex flex-col gap-5">
-            {mockOrders.map((order) => (
+            {orders.map((order) => (
               <GlassCard key={order.orderId} variant="strong" padding="lg">
                 <div className="flex items-start justify-between mb-4">
                   <div>

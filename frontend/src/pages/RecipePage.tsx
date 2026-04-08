@@ -1,20 +1,22 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Button } from '../components/ui/Button';
 import { Input, Textarea } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
-import type { Ingredient, RecipeStep, StepType } from '../types';
-
-const mockCategories = [
-  { categoryId: 1, name: '엄마 레시피' },
-  { categoryId: 2, name: '베이킹' },
-  { categoryId: 3, name: '간단요리' },
-];
+import { recipesApi } from '../api/recipes';
+import { categoriesApi } from '../api/categories';
+import { useRecipeStore } from '../store/useRecipeStore';
+import type { Category, Ingredient, RecipeStep, StepType } from '../types';
 
 export function RecipePage() {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const isEdit = !!id;
+  const { addRecipe, updateRecipe } = useRecipeStore();
+
+  const [categories, setCategories] = useState<Category[]>([]);
   const [title, setTitle] = useState('');
   const [cookingTime, setCookingTime] = useState('');
   const [review, setReview] = useState('');
@@ -27,10 +29,52 @@ export function RecipePage() {
   const [steps, setSteps] = useState<RecipeStep[]>([
     { stepType: 'FOOD', stepOrder: 1, description: '' },
   ]);
+  const [loading, setLoading] = useState(false);
 
-  const toggleCategory = (id: number) => {
+  useEffect(() => {
+    categoriesApi.getAll().then(setCategories);
+    if (isEdit) {
+      recipesApi.getOne(Number(id)).then((recipe) => {
+        setTitle(recipe.title);
+        setCookingTime(recipe.cookingTime?.toString() ?? '');
+        setReview(recipe.review ?? '');
+        setMemo(recipe.memo ?? '');
+        setSelectedCategories(recipe.categories?.map((c) => c.categoryId) ?? []);
+        setIngredients(recipe.ingredients.length > 0 ? recipe.ingredients : [{ name: '', amount: undefined, unit: '', sortOrder: 0 }]);
+        setSteps(recipe.steps.length > 0 ? recipe.steps : [{ stepType: 'FOOD', stepOrder: 1, description: '' }]);
+      });
+    }
+  }, [id]);
+
+  const handleSave = async () => {
+    if (!title.trim()) return;
+    setLoading(true);
+    try {
+      const payload = {
+        title,
+        cookingTime: cookingTime ? Number(cookingTime) : undefined,
+        review: review || undefined,
+        memo: memo || undefined,
+        categoryIds: selectedCategories,
+        ingredients,
+        steps,
+      };
+      if (isEdit) {
+        const updated = await recipesApi.update(Number(id), payload);
+        updateRecipe(updated.recipeId, updated);
+      } else {
+        const created = await recipesApi.create(payload);
+        addRecipe(created);
+      }
+      navigate(-1);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleCategory = (catId: number) => {
     setSelectedCategories((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+      prev.includes(catId) ? prev.filter((c) => c !== catId) : [...prev, catId]
     );
   };
 
@@ -63,7 +107,7 @@ export function RecipePage() {
           >
             ← 돌아가기
           </button>
-          <h1 className="text-3xl font-bold text-brown-800">새 레시피</h1>
+          <h1 className="text-3xl font-bold text-brown-800">{isEdit ? '레시피 수정' : '새 레시피'}</h1>
         </div>
 
         <div className="flex flex-col gap-5">
@@ -90,7 +134,7 @@ export function RecipePage() {
               <div>
                 <p className="text-sm font-medium text-brown-800 mb-2">카테고리</p>
                 <div className="flex flex-wrap gap-2">
-                  {mockCategories.map((cat) => (
+                  {categories.map((cat) => (
                     <button
                       key={cat.categoryId}
                       onClick={() => toggleCategory(cat.categoryId)}
@@ -228,7 +272,9 @@ export function RecipePage() {
             <Button variant="secondary" fullWidth onClick={() => navigate(-1)}>
               취소
             </Button>
-            <Button fullWidth>레시피 저장</Button>
+            <Button fullWidth loading={loading} onClick={handleSave} disabled={!title.trim()}>
+              {isEdit ? '수정 완료' : '레시피 저장'}
+            </Button>
           </div>
         </div>
       </div>

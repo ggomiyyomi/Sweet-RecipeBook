@@ -1,21 +1,13 @@
+import { useEffect, useState } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
+import { Input } from '../components/ui/Input';
 import { Link } from 'react-router-dom';
+import { booksApi } from '../api/books';
+import { useRecipeBookStore } from '../store/useRecipeBookStore';
 import type { RecipeBook } from '../types';
-
-const mockBooks: RecipeBook[] = [
-  {
-    recipeBookId: 1, userId: 1, title: '가족 레시피 모음집',
-    status: 'DRAFT', createdAt: '2026-04-01', updatedAt: '2026-04-03',
-  },
-  {
-    recipeBookId: 2, userId: 1, title: '나의 베이킹 노트',
-    status: 'GENERATED', externalBookId: 'ext-123',
-    createdAt: '2026-03-20', updatedAt: '2026-04-02',
-  },
-];
 
 const statusLabel: Record<RecipeBook['status'], string> = {
   DRAFT: '작성 중',
@@ -30,6 +22,31 @@ const statusColor: Record<RecipeBook['status'], 'brown' | 'green' | 'blue'> = {
 };
 
 export function RecipeBookPage() {
+  const { books, setBooks, addBook, setLoading } = useRecipeBookStore();
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [creating, setCreating] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    booksApi.getAll()
+      .then(setBooks)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleCreate = async () => {
+    if (!newTitle.trim()) return;
+    setCreating(true);
+    try {
+      const created = await booksApi.create({ title: newTitle.trim() });
+      addBook(created);
+      setNewTitle('');
+      setShowNewForm(false);
+    } finally {
+      setCreating(false);
+    }
+  };
+
   return (
     <AppLayout>
       <div className="animate-fade-in-up">
@@ -38,10 +55,32 @@ export function RecipeBookPage() {
             <p className="text-sm text-brown-400 mb-1">나만의 레시피북</p>
             <h1 className="text-3xl font-bold text-brown-800">레시피북</h1>
           </div>
-          <Button>
+          <Button onClick={() => setShowNewForm((v) => !v)}>
             <span>+</span> 새 레시피북
           </Button>
         </div>
+
+        {/* 새 레시피북 폼 */}
+        {showNewForm && (
+          <GlassCard variant="strong" padding="md" className="mb-6">
+            <p className="text-sm font-medium text-brown-700 mb-3">레시피북 제목</p>
+            <div className="flex gap-3">
+              <Input
+                placeholder="예: 가족 레시피 모음집"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                className="flex-1"
+              />
+              <Button onClick={handleCreate} loading={creating} disabled={!newTitle.trim()}>
+                만들기
+              </Button>
+              <Button variant="ghost" onClick={() => setShowNewForm(false)}>
+                취소
+              </Button>
+            </div>
+          </GlassCard>
+        )}
 
         {/* 사용 흐름 안내 */}
         <GlassCard variant="subtle" padding="md" className="mb-8">
@@ -69,7 +108,7 @@ export function RecipeBookPage() {
 
         {/* 레시피북 목록 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {mockBooks.map((book, i) => (
+          {books.map((book, i) => (
             <Link key={book.recipeBookId} to={`/books/${book.recipeBookId}`}>
               <GlassCard
                 hover
@@ -120,6 +159,7 @@ export function RecipeBookPage() {
             variant="subtle"
             padding="none"
             className="h-full min-h-[220px] flex items-center justify-center border-dashed border-2 border-primary-200/60"
+            onClick={() => setShowNewForm(true)}
           >
             <div className="text-center">
               <div className="w-12 h-12 rounded-full glass flex items-center justify-center mx-auto mb-3">

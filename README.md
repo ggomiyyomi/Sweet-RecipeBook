@@ -127,6 +127,14 @@ npm run dev
 | PUT | `/api/recipes/{recipeId}` | 레시피 수정 | 필요 |
 | DELETE | `/api/recipes/{recipeId}` | 레시피 삭제 | 필요 |
 
+### 카테고리
+| 메서드 | URL | 설명 | 인증 (토큰 여부) |
+|--------|-----|------|------|
+| POST | `/api/categories` | 카테고리 생성 | 필요 |
+| GET | `/api/categories` | 내 카테고리 목록 조회 | 필요 |
+| PUT | `/api/categories/{categoryId}` | 카테고리 수정 | 필요 |
+| DELETE | `/api/categories/{categoryId}` | 카테고리 삭제 | 필요 |
+
 ### 레시피북
 | 메서드 | URL | 설명 | 인증 (토큰 여부) |
 |--------|-----|------|------|
