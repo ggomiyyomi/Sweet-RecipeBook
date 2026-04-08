@@ -145,6 +145,47 @@ public class SweetBookApiClient {
         return response.getData().getOrderUid();
     }
 
+    /** 6. 주문 취소 */
+    public void cancelOrder(String orderUid, String cancelReason) {
+        SweetBookApiResponse<?> response = sweetBookRestClient.post()
+                .uri("/orders/{orderUid}/cancel", orderUid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("cancelReason", cancelReason))
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
+
+        if (response == null || !response.isSuccess()) {
+            throw new RuntimeException("SweetBook 주문 취소 실패: " +
+                    (response != null ? response.getMessage() : "응답 없음"));
+        }
+        log.info("SweetBook 주문 취소 완료: orderUid={}", orderUid);
+    }
+
+    /** 7. 배송지 수정 */
+    public void updateShipping(String orderUid, String recipientName, String recipientPhone,
+                               String postalCode, String address, String addressDetail, String memo) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("recipientName", recipientName);
+        body.put("recipientPhone", recipientPhone);
+        body.put("postalCode", postalCode);
+        body.put("address1", address);
+        if (addressDetail != null) body.put("addressDetail", addressDetail);
+        if (memo != null) body.put("memo", memo);
+
+        SweetBookApiResponse<?> response = sweetBookRestClient.patch()
+                .uri("/orders/{orderUid}/shipping", orderUid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
+
+        if (response == null || !response.isSuccess()) {
+            throw new RuntimeException("SweetBook 배송지 수정 실패: " +
+                    (response != null ? response.getMessage() : "응답 없음"));
+        }
+        log.info("SweetBook 배송지 수정 완료: orderUid={}", orderUid);
+    }
+
     private Map<String, Object> buildRecipeParameters(RecipeDetailResponse recipe) {
         Map<String, Object> params = new HashMap<>();
 

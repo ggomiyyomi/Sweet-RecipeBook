@@ -13,4 +13,6 @@ public interface OrderMapper {
     void updateOrderConfirmed(@Param("orderId") Long orderId, @Param("externalOrderId") String externalOrderId);
     OrderResponse findById(@Param("orderId") Long orderId);
     List<OrderResponse> findAllByUserId(@Param("userId") Long userId);
+    void updateOrderStatus(@Param("orderId") Long orderId, @Param("status") String status);
+    OrderResponse findByExternalOrderId(@Param("externalOrderId") String externalOrderId);
 }

@@ -1,6 +1,7 @@
 package com.sweetrecipe.recipebook.controller;
 
 import com.sweetrecipe.recipebook.dto.request.OrderCreateRequest;
+import com.sweetrecipe.recipebook.dto.request.ShippingUpdateRequest;
 import com.sweetrecipe.recipebook.dto.response.OrderResponse;
 import com.sweetrecipe.recipebook.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,5 +38,21 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<List<OrderResponse>> getOrdersByUser(@RequestParam Long userId) {
         return ResponseEntity.ok(orderService.getOrdersByUser(userId));
+    }
+
+    @Operation(summary = "주문 취소", description = "PAID 또는 PDF_READY 상태인 주문만 취소 가능합니다.")
+    @PostMapping("/{orderId}/cancel")
+    public ResponseEntity<Void> cancelOrder(@PathVariable Long orderId,
+                                            @RequestParam(defaultValue = "고객 요청 취소") String cancelReason) {
+        orderService.cancelOrder(orderId, cancelReason);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "배송지 수정", description = "출고 전 주문의 배송지를 수정합니다.")
+    @PatchMapping("/{orderId}/shipping")
+    public ResponseEntity<Void> updateShipping(@PathVariable Long orderId,
+                                               @RequestBody ShippingUpdateRequest request) {
+        orderService.updateShipping(orderId, request);
+        return ResponseEntity.noContent().build();
     }
 }
