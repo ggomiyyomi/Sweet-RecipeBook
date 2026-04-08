@@ -1,6 +1,7 @@
 package com.sweetrecipe.recipebook.controller;
 
 import com.sweetrecipe.recipebook.dto.request.RecipeCreateRequest;
+import com.sweetrecipe.recipebook.dto.request.RecipeUpdateRequest;
 import com.sweetrecipe.recipebook.dto.response.RecipeDetailResponse;
 import com.sweetrecipe.recipebook.dto.response.RecipeSummaryResponse;
 import com.sweetrecipe.recipebook.global.security.UserPrincipal;
@@ -43,5 +44,20 @@ public class RecipeController {
     @GetMapping("/{recipeId}")
     public ResponseEntity<RecipeDetailResponse> getRecipeDetail(@PathVariable Long recipeId) {
         return ResponseEntity.ok(recipeService.getRecipeDetail(recipeId));
+    }
+
+    @Operation(summary = "레시피 수정")
+    @PutMapping("/{recipeId}")
+    public ResponseEntity<Void> updateRecipe(@PathVariable Long recipeId,
+                                             @RequestBody RecipeUpdateRequest request) {
+        recipeService.updateRecipe(recipeId, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "레시피 삭제")
+    @DeleteMapping("/{recipeId}")
+    public ResponseEntity<Void> deleteRecipe(@PathVariable Long recipeId) {
+        recipeService.deleteRecipe(recipeId);
+        return ResponseEntity.noContent().build();
     }
 }

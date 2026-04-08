@@ -92,4 +92,26 @@
         WHERE recipe_id = #{recipeId}
     </select>
 
+    <update id="updateRecipe">
+        UPDATE RECIPE
+        SET title         = #{req.title},
+            thumbnail_url = #{req.thumbnailUrl},
+            cooking_time  = #{req.cookingTime},
+            review        = #{req.review},
+            memo          = #{req.memo}
+        WHERE recipe_id = #{recipeId}
+    </update>
+
+    <delete id="deleteIngredients">
+        DELETE FROM INGREDIENT WHERE recipe_id = #{recipeId}
+    </delete>
+
+    <delete id="deleteSteps">
+        DELETE FROM RECIPE_STEP WHERE recipe_id = #{recipeId}
+    </delete>
+
+    <delete id="deleteRecipe">
+        DELETE FROM RECIPE WHERE recipe_id = #{recipeId}
+    </delete>
+
 </mapper>

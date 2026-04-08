@@ -1,6 +1,7 @@
 package com.sweetrecipe.recipebook.service;
 
 import com.sweetrecipe.recipebook.dto.request.RecipeCreateRequest;
+import com.sweetrecipe.recipebook.dto.request.RecipeUpdateRequest;
 import com.sweetrecipe.recipebook.dto.response.RecipeDetailResponse;
 import com.sweetrecipe.recipebook.dto.response.RecipeSummaryResponse;
 import com.sweetrecipe.recipebook.global.exception.CustomException;
@@ -44,5 +45,34 @@ public class RecipeService {
             throw new CustomException(RecipeErrorCode.RECIPE_NOT_FOUND);
         }
         return detail;
+    }
+
+    @Transactional
+    public void updateRecipe(Long recipeId, RecipeUpdateRequest request) {
+        RecipeDetailResponse existing = recipeMapper.findDetailById(recipeId);
+        if (existing == null) {
+            throw new CustomException(RecipeErrorCode.RECIPE_NOT_FOUND);
+        }
+
+        recipeMapper.updateRecipe(recipeId, request);
+
+        recipeMapper.deleteIngredients(recipeId);
+        if (request.getIngredients() != null && !request.getIngredients().isEmpty()) {
+            recipeMapper.insertIngredients(recipeId, request.getIngredients());
+        }
+
+        recipeMapper.deleteSteps(recipeId);
+        if (request.getSteps() != null && !request.getSteps().isEmpty()) {
+            recipeMapper.insertSteps(recipeId, request.getSteps());
+        }
+    }
+
+    @Transactional
+    public void deleteRecipe(Long recipeId) {
+        RecipeDetailResponse existing = recipeMapper.findDetailById(recipeId);
+        if (existing == null) {
+            throw new CustomException(RecipeErrorCode.RECIPE_NOT_FOUND);
+        }
+        recipeMapper.deleteRecipe(recipeId);
     }
 }
