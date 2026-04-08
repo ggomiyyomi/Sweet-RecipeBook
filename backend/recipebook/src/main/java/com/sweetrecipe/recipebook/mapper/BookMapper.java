@@ -31,4 +31,7 @@ public interface BookMapper {
 
     void updateBookGenerated(@Param("recipeBookId") Long recipeBookId,
                              @Param("externalBookId") String externalBookId);
+
+    void updateBookStatus(@Param("recipeBookId") Long recipeBookId,
+                          @Param("status") String status);
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sweetrecipe.recipebook.dto.response.RecipeDetailResponse;
 import com.sweetrecipe.recipebook.global.client.dto.ExternalBookCreatedData;
 import com.sweetrecipe.recipebook.global.client.dto.ExternalBookFinalizedData;
+import com.sweetrecipe.recipebook.global.client.dto.ExternalOrderCreatedData;
 import com.sweetrecipe.recipebook.global.client.dto.SweetBookApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.web.client.RestClient;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -106,6 +108,41 @@ public class SweetBookApiClient {
         }
         log.info("SweetBook 책 최종화 완료: bookUid={}, pageCount={}",
                 bookUid, response.getData() != null ? response.getData().getPageCount() : "?");
+    }
+
+    /** 5. 주문 생성 */
+    public String createOrder(String bookUid, int quantity,
+                              String recipientName, String recipientPhone,
+                              String postalCode, String address, String addressDetail) {
+        Map<String, Object> item = new HashMap<>();
+        item.put("bookUid", bookUid);
+        item.put("quantity", quantity);
+
+        Map<String, Object> shipping = new HashMap<>();
+        shipping.put("recipientName", recipientName);
+        shipping.put("recipientPhone", recipientPhone);
+        shipping.put("postalCode", postalCode);
+        shipping.put("address1", address);
+        if (addressDetail != null) shipping.put("addressDetail", addressDetail);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("items", List.of(item));
+        body.put("shipping", shipping);
+
+        SweetBookApiResponse<ExternalOrderCreatedData> response = sweetBookRestClient.post()
+                .uri("/orders")
+                .header("Idempotency-Key", UUID.randomUUID().toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
+
+        if (response == null || !response.isSuccess()) {
+            throw new RuntimeException("SweetBook 주문 생성 실패: " +
+                    (response != null ? response.getMessage() : "응답 없음"));
+        }
+        log.info("SweetBook 주문 생성 완료: bookUid={}, orderUid={}", bookUid, response.getData().getOrderUid());
+        return response.getData().getOrderUid();
     }
 
     private Map<String, Object> buildRecipeParameters(RecipeDetailResponse recipe) {

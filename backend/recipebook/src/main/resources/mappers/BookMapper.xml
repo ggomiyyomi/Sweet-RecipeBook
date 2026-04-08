@@ -18,12 +18,13 @@
 
     <resultMap id="BookDetailResultMap"
                type="com.sweetrecipe.recipebook.dto.response.BookDetailResponse">
-        <id  property="recipeBookId" column="recipe_book_id"/>
-        <result property="userId"    column="user_id"/>
-        <result property="title"     column="title"/>
-        <result property="status"    column="status"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
+        <id  property="recipeBookId"   column="recipe_book_id"/>
+        <result property="userId"       column="user_id"/>
+        <result property="title"        column="title"/>
+        <result property="status"       column="status"/>
+        <result property="externalBookId" column="external_book_id"/>
+        <result property="createdAt"    column="created_at"/>
+        <result property="updatedAt"    column="updated_at"/>
         <collection property="items" column="recipe_book_id"
                     select="selectItemsByBookId"/>
     </resultMap>
@@ -68,7 +69,7 @@
     </select>
 
     <select id="findDetailById" resultMap="BookDetailResultMap">
-        SELECT recipe_book_id, user_id, title, status, created_at, updated_at
+        SELECT recipe_book_id, user_id, title, status, external_book_id, created_at, updated_at
         FROM RECIPE_BOOK
         WHERE recipe_book_id = #{recipeBookId}
     </select>
@@ -93,6 +94,12 @@
         UPDATE RECIPE_BOOK
         SET external_book_id = #{externalBookId},
             status = 'GENERATED'
+        WHERE recipe_book_id = #{recipeBookId}
+    </update>
+
+    <update id="updateBookStatus">
+        UPDATE RECIPE_BOOK
+        SET status = #{status}
         WHERE recipe_book_id = #{recipeBookId}
     </update>
 

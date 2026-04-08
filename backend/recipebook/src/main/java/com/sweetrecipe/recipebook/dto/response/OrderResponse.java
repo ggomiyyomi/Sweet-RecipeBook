@@ -4,17 +4,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class BookDetailResponse {
-    private Long recipeBookId;
+public class OrderResponse {
+    private Long orderId;
     private Long userId;
-    private String title;
+    private Long recipeBookId;
+    private String externalOrderId;
     private String status;
-    private String externalBookId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<BookItemResponse> items;
 }

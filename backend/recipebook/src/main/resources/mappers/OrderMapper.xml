@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sweetrecipe.recipebook.mapper.OrderMapper">
+
+    <resultMap id="OrderResultMap" type="com.sweetrecipe.recipebook.dto.response.OrderResponse">
+        <id  property="orderId"         column="order_id"/>
+        <result property="userId"        column="user_id"/>
+        <result property="recipeBookId"  column="recipe_book_id"/>
+        <result property="externalOrderId" column="external_order_id"/>
+        <result property="status"        column="status"/>
+        <result property="createdAt"     column="created_at"/>
+        <result property="updatedAt"     column="updated_at"/>
+    </resultMap>
+
+    <insert id="insertOrder" parameterType="com.sweetrecipe.recipebook.dto.request.OrderCreateRequest"
+            useGeneratedKeys="true" keyProperty="orderId">
+        INSERT INTO ORDERS (user_id, recipe_book_id, status)
+        VALUES (#{userId}, #{recipeBookId}, 'PENDING')
+    </insert>
+
+    <update id="updateOrderConfirmed">
+        UPDATE ORDERS
+        SET external_order_id = #{externalOrderId},
+            status = 'CONFIRMED'
+        WHERE order_id = #{orderId}
+    </update>
+
+    <select id="findById" resultMap="OrderResultMap">
+        SELECT order_id, user_id, recipe_book_id, external_order_id, status, created_at, updated_at
+        FROM ORDERS
+        WHERE order_id = #{orderId}
+    </select>
+
+    <select id="findAllByUserId" resultMap="OrderResultMap">
+        SELECT order_id, user_id, recipe_book_id, external_order_id, status, created_at, updated_at
+        FROM ORDERS
+        WHERE user_id = #{userId}
+        ORDER BY created_at DESC
+    </select>
+
+</mapper>
