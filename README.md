@@ -68,7 +68,47 @@
 
 ## 3. 사용한 API 목록
 
-추후 작성 예정
+### 인증
+| 메서드 | URL | 설명 | 인증 (토큰 여부) |
+|--------|-----|------|------|
+| POST | `/api/auth/signup` | 회원가입 | 불필요 |
+| POST | `/api/auth/login` | 로그인 | 불필요 |
+| POST | `/api/auth/logout` | 로그아웃 | 필요 |
+
+### 레시피
+| 메서드 | URL | 설명 | 인증 (토큰 여부) |
+|--------|-----|------|------|
+| POST | `/api/recipes` | 레시피 등록 | 필요 |
+| GET | `/api/recipes` | 내 레시피 목록 조회 | 필요 |
+| GET | `/api/recipes/{recipeId}` | 레시피 상세 조회 | 필요 |
+| PUT | `/api/recipes/{recipeId}` | 레시피 수정 | 필요 |
+| DELETE | `/api/recipes/{recipeId}` | 레시피 삭제 | 필요 |
+
+### 레시피북
+| 메서드 | URL | 설명 | 인증 (토큰 여부) |
+|--------|-----|------|------|
+| POST | `/api/books` | 책 생성 (SweetBook 연동) | 필요 |
+| GET | `/api/books` | 내 책 목록 조회 | 필요 |
+| GET | `/api/books/{recipeBookId}` | 책 상세 조회 | 필요 |
+| PUT | `/api/books/{recipeBookId}` | 책 제목 수정 | 필요 |
+| DELETE | `/api/books/{recipeBookId}` | 책 삭제 | 필요 |
+| GET | `/api/books/specs` | 판형 목록 조회 (SweetBook) | 필요 |
+| GET | `/api/books/templates` | 템플릿 목록 조회 (SweetBook) | 필요 |
+| GET | `/api/books/templates/{templateUid}` | 템플릿 상세 조회 (SweetBook) | 필요 |
+
+### 주문
+| 메서드 | URL | 설명 | 인증 (토큰 여부) |
+|--------|-----|------|------|
+| POST | `/api/orders` | 주문 생성 | 필요 |
+| GET | `/api/orders` | 내 주문 목록 조회 | 필요 |
+| GET | `/api/orders/{orderId}` | 주문 단건 조회 | 필요 |
+| POST | `/api/orders/{orderId}/cancel` | 주문 취소 | 필요 |
+| PATCH | `/api/orders/{orderId}/shipping` | 배송지 수정 | 필요 |
+
+### 웹훅
+| 메서드 | URL | 설명 | 인증 (토큰 여부) |
+|--------|-----|------|------|
+| POST | `/api/webhooks/orders` | SweetBook 주문 상태 동기화 | 불필요 |
 
 ---
 
