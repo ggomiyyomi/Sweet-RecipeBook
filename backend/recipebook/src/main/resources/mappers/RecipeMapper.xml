@@ -66,8 +66,8 @@
     <insert id="insertIngredients">
         INSERT INTO INGREDIENT (recipe_id, name, amount, unit, sort_order)
         VALUES
-        <foreach collection="ingredients" item="i" separator=",">
-            (#{recipeId}, #{i.name}, #{i.amount}, #{i.unit}, #{i.sortOrder})
+        <foreach collection="ingredients" item="i" index="idx" separator=",">
+            (#{recipeId}, #{i.name}, #{i.amount}, #{i.unit}, IFNULL(#{i.sortOrder}, #{idx}))
         </foreach>
     </insert>
 

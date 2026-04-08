@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sweetrecipe.recipebook.mapper.BookMapper">
+
+    <!-- ===== ResultMaps ===== -->
+
+    <resultMap id="BookItemResultMap"
+               type="com.sweetrecipe.recipebook.dto.response.BookItemResponse">
+        <id  property="itemId"       column="item_id"/>
+        <result property="recipeId"   column="recipe_id"/>
+        <result property="recipeTitle" column="recipe_title"/>
+        <result property="thumbnailUrl" column="thumbnail_url"/>
+        <result property="sectionTitle" column="section_title"/>
+        <result property="sortOrder"  column="sort_order"/>
+    </resultMap>
+
+    <resultMap id="BookDetailResultMap"
+               type="com.sweetrecipe.recipebook.dto.response.BookDetailResponse">
+        <id  property="recipeBookId" column="recipe_book_id"/>
+        <result property="userId"    column="user_id"/>
+        <result property="title"     column="title"/>
+        <result property="status"    column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <collection property="items" column="recipe_book_id"
+                    select="selectItemsByBookId"/>
+    </resultMap>
+
+    <!-- ===== Queries ===== -->
+
+    <select id="selectItemsByBookId" resultMap="BookItemResultMap">
+        SELECT
+            i.item_id,
+            i.recipe_id,
+            r.title AS recipe_title,
+            r.thumbnail_url,
+            i.section_title,
+            i.sort_order
+        FROM RECIPE_BOOK_ITEM i
+        JOIN RECIPE r ON i.recipe_id = r.recipe_id
+        WHERE i.recipe_book_id = #{recipeBookId}
+        ORDER BY i.sort_order
+    </select>
+
+    <insert id="insertBook"
+            parameterType="com.sweetrecipe.recipebook.dto.request.BookCreateRequest"
+            useGeneratedKeys="true" keyProperty="recipeBookId">
+        INSERT INTO RECIPE_BOOK (user_id, title, status)
+        VALUES (#{userId}, #{title}, 'DRAFT')
+    </insert>
+
+    <insert id="insertBookItems">
+        INSERT INTO RECIPE_BOOK_ITEM (recipe_book_id, recipe_id, section_title, sort_order)
+        VALUES
+        <foreach collection="items" item="i" separator=",">
+            (#{recipeBookId}, #{i.recipeId}, #{i.sectionTitle}, #{i.sortOrder})
+        </foreach>
+    </insert>
+
+    <select id="findAllByUserId"
+            resultType="com.sweetrecipe.recipebook.dto.response.BookSummaryResponse">
+        SELECT recipe_book_id, title, status, created_at, updated_at
+        FROM RECIPE_BOOK
+        WHERE user_id = #{userId}
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findDetailById" resultMap="BookDetailResultMap">
+        SELECT recipe_book_id, user_id, title, status, created_at, updated_at
+        FROM RECIPE_BOOK
+        WHERE recipe_book_id = #{recipeBookId}
+    </select>
+
+    <update id="updateBookTitle">
+        UPDATE RECIPE_BOOK
+        SET title = #{title}
+        WHERE recipe_book_id = #{recipeBookId}
+    </update>
+
+    <delete id="deleteBookItems">
+        DELETE FROM RECIPE_BOOK_ITEM
+        WHERE recipe_book_id = #{recipeBookId}
+    </delete>
+
+    <delete id="deleteBook">
+        DELETE FROM RECIPE_BOOK
+        WHERE recipe_book_id = #{recipeBookId}
+    </delete>
+
+    <update id="updateBookGenerated">
+        UPDATE RECIPE_BOOK
+        SET external_book_id = #{externalBookId},
+            status = 'GENERATED'
+        WHERE recipe_book_id = #{recipeBookId}
+    </update>
+
+</mapper>
