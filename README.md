@@ -62,7 +62,50 @@
 
 ## 2. 실행 방법
 
-추후 작성 예정
+### 요구 사항
+
+- Java 21
+- Node.js 18+
+- MySQL 8.0+
+
+### 백엔드
+
+```bash
+# 데이터베이스 설정
+# MySQL에서 아래 파일 순서대로 실행
+mysql -u root -p < db/schema.sql
+mysql -u root -p RecipeBook < db/dummy-data.sql
+
+# 환경변수 설정
+cp backend/recipebook/.env.example backend/recipebook/.env
+# .env 파일에 DB 정보 및 API Key 입력
+
+# 실행
+cd backend/recipebook
+./gradlew bootRun
+```
+
+백엔드 서버: http://localhost:8080
+
+Swagger UI: http://localhost:8080/swagger-ui/index.html
+
+### 프론트엔드
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+프론트엔드: http://localhost:5173
+
+### 테스트 계정 (더미데이터 기준)
+
+| 이메일 | 비밀번호 |
+|--------|----------|
+| kim@test.com | test1234 |
+| lee@test.com | test1234 |
+| park@test.com | test1234 |
 
 ---
 
