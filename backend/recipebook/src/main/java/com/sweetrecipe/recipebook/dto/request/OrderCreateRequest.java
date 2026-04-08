@@ -2,8 +2,10 @@ package com.sweetrecipe.recipebook.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class OrderCreateRequest {
     private Long orderId;          // MyBatis useGeneratedKeys로 채워짐

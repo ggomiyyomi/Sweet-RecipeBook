@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sweetrecipe.recipebook.mapper.UserMapper">
+
+    <resultMap id="UserResultMap" type="com.sweetrecipe.recipebook.entity.User">
+        <id  property="userId"    column="user_id"/>
+        <result property="email"     column="email"/>
+        <result property="password"  column="password"/>
+        <result property="name"      column="name"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insertUser" parameterType="com.sweetrecipe.recipebook.dto.request.SignUpRequest"
+            useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO USERS (email, password, name)
+        VALUES (#{email}, #{password}, #{name})
+    </insert>
+
+    <select id="findByEmail" resultMap="UserResultMap">
+        SELECT user_id, email, password, name, created_at
+        FROM USERS
+        WHERE email = #{email}
+    </select>
+
+    <select id="existsByEmail" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM USERS
+        WHERE email = #{email}
+    </select>
+
+</mapper>

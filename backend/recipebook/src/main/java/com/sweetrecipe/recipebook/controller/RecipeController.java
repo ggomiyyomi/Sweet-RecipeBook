@@ -3,11 +3,13 @@ package com.sweetrecipe.recipebook.controller;
 import com.sweetrecipe.recipebook.dto.request.RecipeCreateRequest;
 import com.sweetrecipe.recipebook.dto.response.RecipeDetailResponse;
 import com.sweetrecipe.recipebook.dto.response.RecipeSummaryResponse;
+import com.sweetrecipe.recipebook.global.security.UserPrincipal;
 import com.sweetrecipe.recipebook.service.RecipeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -23,15 +25,18 @@ public class RecipeController {
 
     @Operation(summary = "레시피 등록")
     @PostMapping
-    public ResponseEntity<Void> createRecipe(@RequestBody RecipeCreateRequest request) {
+    public ResponseEntity<Void> createRecipe(@RequestBody RecipeCreateRequest request,
+                                             @AuthenticationPrincipal UserPrincipal currentUser) {
+        request.setUserId(currentUser.getUserId());
         Long recipeId = recipeService.createRecipe(request);
         return ResponseEntity.created(URI.create("/api/recipes/" + recipeId)).build();
     }
 
-    @Operation(summary = "유저별 레시피 목록 조회")
+    @Operation(summary = "내 레시피 목록 조회")
     @GetMapping
-    public ResponseEntity<List<RecipeSummaryResponse>> getRecipes(@RequestParam Long userId) {
-        return ResponseEntity.ok(recipeService.getRecipesByUser(userId));
+    public ResponseEntity<List<RecipeSummaryResponse>> getRecipes(
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        return ResponseEntity.ok(recipeService.getRecipesByUser(currentUser.getUserId()));
     }
 
     @Operation(summary = "레시피 상세 조회")

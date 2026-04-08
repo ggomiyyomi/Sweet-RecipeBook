@@ -2,11 +2,13 @@ package com.sweetrecipe.recipebook.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class BookCreateRequest {
     private Long recipeBookId;        // MyBatis useGeneratedKeys로 채워짐

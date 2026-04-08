@@ -4,13 +4,14 @@ import com.sweetrecipe.recipebook.dto.request.BookCreateRequest;
 import com.sweetrecipe.recipebook.dto.request.BookUpdateRequest;
 import com.sweetrecipe.recipebook.dto.response.BookDetailResponse;
 import com.sweetrecipe.recipebook.dto.response.BookSummaryResponse;
-import com.sweetrecipe.recipebook.global.client.SweetBookApiClient;
+import com.sweetrecipe.recipebook.global.security.UserPrincipal;
 import com.sweetrecipe.recipebook.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
 
@@ -28,15 +29,18 @@ public class BookController {
 
     @Operation(summary = "책 생성 (SweetBook API 연동)")
     @PostMapping
-    public ResponseEntity<Void> createBook(@RequestBody BookCreateRequest request) {
+    public ResponseEntity<Void> createBook(@RequestBody BookCreateRequest request,
+                                           @AuthenticationPrincipal UserPrincipal currentUser) {
+        request.setUserId(currentUser.getUserId());
         Long recipeBookId = bookService.createBook(request);
         return ResponseEntity.created(URI.create("/api/books/" + recipeBookId)).build();
     }
 
-    @Operation(summary = "유저별 책 목록 조회")
+    @Operation(summary = "내 책 목록 조회")
     @GetMapping
-    public ResponseEntity<List<BookSummaryResponse>> getBooks(@RequestParam Long userId) {
-        return ResponseEntity.ok(bookService.getBooksByUser(userId));
+    public ResponseEntity<List<BookSummaryResponse>> getBooks(
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        return ResponseEntity.ok(bookService.getBooksByUser(currentUser.getUserId()));
     }
 
     @Operation(summary = "책 상세 조회")

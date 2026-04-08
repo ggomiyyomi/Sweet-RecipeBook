@@ -3,11 +3,13 @@ package com.sweetrecipe.recipebook.controller;
 import com.sweetrecipe.recipebook.dto.request.OrderCreateRequest;
 import com.sweetrecipe.recipebook.dto.request.ShippingUpdateRequest;
 import com.sweetrecipe.recipebook.dto.response.OrderResponse;
+import com.sweetrecipe.recipebook.global.security.UserPrincipal;
 import com.sweetrecipe.recipebook.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -23,7 +25,9 @@ public class OrderController {
 
     @Operation(summary = "주문 생성", description = "생성된 책(GENERATED 상태)을 인쇄 주문합니다.")
     @PostMapping
-    public ResponseEntity<Void> createOrder(@RequestBody OrderCreateRequest request) {
+    public ResponseEntity<Void> createOrder(@RequestBody OrderCreateRequest request,
+                                            @AuthenticationPrincipal UserPrincipal currentUser) {
+        request.setUserId(currentUser.getUserId());
         Long orderId = orderService.createOrder(request);
         return ResponseEntity.created(URI.create("/api/orders/" + orderId)).build();
     }
@@ -34,10 +38,11 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrder(orderId));
     }
 
-    @Operation(summary = "사용자 주문 목록 조회")
+    @Operation(summary = "내 주문 목록 조회")
     @GetMapping
-    public ResponseEntity<List<OrderResponse>> getOrdersByUser(@RequestParam Long userId) {
-        return ResponseEntity.ok(orderService.getOrdersByUser(userId));
+    public ResponseEntity<List<OrderResponse>> getOrdersByUser(
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        return ResponseEntity.ok(orderService.getOrdersByUser(currentUser.getUserId()));
     }
 
     @Operation(summary = "주문 취소", description = "PAID 또는 PDF_READY 상태인 주문만 취소 가능합니다.")
