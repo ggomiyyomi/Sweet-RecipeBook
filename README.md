@@ -27,25 +27,33 @@
 
 ---
 
-## ⚙️ 주요 기능 (추후 사진 추가 예정)
+## ⚙️ 주요 기능
 
 ### 1. 레시피 입력 기능
+<img width="1252" height="757" alt="레시피 내역" src="https://github.com/user-attachments/assets/14adae94-2995-4014-a4c1-b5d6726e7290" />
+<img width="359" height="671" alt="레시피 입력창" src="https://github.com/user-attachments/assets/7af520ae-9fdf-4ac9-ae3b-21cc615caf1e" />
 
 ---
 
 ### 2. INDEX (카테고리) 기능
+<img width="1207" height="443" alt="카테고리" src="https://github.com/user-attachments/assets/33297ad0-bc9e-47d7-a9c7-1a11c7e21385" />
 
 ---
 
 ### 3. 레시피북 구조 구성 기능
+<img width="1181" height="504" alt="레시피북 생성내역" src="https://github.com/user-attachments/assets/e0b5dcab-b631-440f-807b-a50161e7e472" />
+<img width="1191" height="647" alt="레시피북 생성" src="https://github.com/user-attachments/assets/2c44e21f-2409-419c-b90c-7edf93d03ff7" />
+<img width="723" height="454" alt="레시피북 상세내역" src="https://github.com/user-attachments/assets/7414276a-9430-47a7-9817-b82bf12a3a08" />
 
 ---
 
 ### 4. 책 생성 및 주문 기능
+<img width="1201" height="235" alt="레시피북 주문내역" src="https://github.com/user-attachments/assets/766b148d-aca7-4ac0-87e3-7d25ad4cad5e" />
 
 ---
 
 ### 5. 로그인 및 사용자 관리 (마이페이지)
+<img width="1659" height="829" alt="로그인:회원가입" src="https://github.com/user-attachments/assets/f40e9243-daff-49f2-b2e2-e0f7db658478" />
 
 ---
 
